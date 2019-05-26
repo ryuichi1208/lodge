@@ -1,0 +1,9 @@
+FROM circleci/python:3.6.5
+
+ARG HomeDir="/home/circleci"
+ARG Port=8080
+
+WORKDIR ${HomeDir}
+COPY dockerfile ${HomeDir}
+
+RUN mkdir /tmp/test_results

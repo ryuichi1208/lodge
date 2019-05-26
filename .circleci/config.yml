@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    docker:
+      image: circleci/python:3.6.3
+    steps:
+      - checkout
+      - run:
+          command: |
+            echo "Starting Build"
+            set +e
+            mkdir -p /tmp/test-results
+            echo "Finish Test"
+            ls -la
+            pwd
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
