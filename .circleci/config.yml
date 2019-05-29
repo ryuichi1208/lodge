@@ -1,21 +1,62 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+# 実行環境の情報定義
+executors:
+  default:
+    working_directory: ~
     docker:
-      image: circleci/python:3.6.3
+      - image: circleci/python:3.6.5
+
+# ジョブ定義
+jobs:
+  setup:
+    executor:
+      name: default
     steps:
       - checkout
       - run:
+          name: Check Container Info
           command: |
-            echo "Starting Build"
-            set +e
-            mkdir -p /tmp/test-results
-            echo "Finish Test"
-            ls -la
             pwd
-
+            ls -al
+            which python
+      - run:
+          name: Install Packages
+          command: |
+            mkdir -p ~/workspace
+            echo "Hello World > ~/workspace/bin"
+            ls -la ../
+            # make clean
+            # make
+      # ビルド/テストコンテナでのファイル共有
+      - persist_to_workspace:
+          root: ~/workspace
+          paths:
+            - bin
+  test:
+    executor:
+      default
+    steps:
+      - checkout
+      - run:
+          name: Test
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip -V
+            pip install pytest
+            pip install pytest-cov
+      - attach_workspace:
+          at: ~/workspace/bin
+      - run:
+          name: Echo File
+          command: |
+            cat ~/workspace/bin
 workflows:
-  version: 2
-  build_and_test:
+  setup_deploy:
     jobs:
-      - build
+      - setup
+      - test:
+          requires:
+            - setup
